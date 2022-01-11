@@ -1,0 +1,103 @@
+.chatWindow {
+    height: 500px;
+    width: 420px;
+    box-shadow: 0px 5px 10px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    background-color: $mainChatWindowColor;
+
+    & .chatButton {
+        height: 30px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: $whiteColor;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+    
+        &:active {
+            box-shadow: 1px 1px 10px rgba(0, 0 , 0, 0.2);
+            transform: translateY(2%);
+        }
+        &.sendMessage {
+            position: absolute;
+            bottom: 22px;
+            right: 13px;
+            width: 60px;
+            background-color: $button1Color;
+
+            &:hover {background-color: $button1HoverColor;}
+        }
+        &.clearChat {
+            margin-left: auto;
+            width: 80px;
+            background-color: $button2Color;
+
+            &:hover {background-color: $button2HoverColor;}
+        }
+    }
+
+    &-header {
+        color: $whiteColor;
+        flex: 10%;
+        padding: 10px;
+        background-color: $headerBackgroundColor;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+    }
+    &-body {
+        flex: 80%;
+        width: 90%;
+        align-self: center;
+        overflow-y: scroll;
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;  /* Internet Explorer 10+ */
+        
+        &::-webkit-scrollbar { /* WebKit */
+            width: 0;
+            height: 0;
+        }
+
+        &-message {
+            width: 150px;
+            height: auto;
+
+            &.myMessage {
+                margin-right: auto;
+                & .messageContent {background-color: $myMessageColor;}
+            }
+    
+            &.foreignMessage {
+                margin-left: auto;
+                & .messageContent {background-color: $foreignMessageColor;}
+            }
+            
+            & .messageContent {
+                padding: 10px;
+                width: 120px;
+                border-radius: 5px;
+                word-wrap: break-word;
+            }
+
+            & .messageDate {
+                font-size: 11px;
+                text-align: right;
+            }
+        }
+    }
+
+    &-footer {
+        flex: 10%;
+        position: relative;
+
+        &-textarea {
+            overflow-wrap: break-word;
+            width: 72%;
+            border: none;
+            resize: none;
+            border-radius: 5px;
+            min-height: 25px;
+            padding: 10px;
+            
+            &:focus {outline: none;}
+        }
+    }
+}
