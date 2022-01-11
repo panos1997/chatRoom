@@ -4,7 +4,7 @@ import ChatWindow from './components/chatWindow';
 import Login from './components/login';
 import io from 'socket.io-client';
 
-const socket = io.connect('http://localhost:3001');
+const socket = io.connect('https://my-chat-room-application.herokuapp.com/');
 
 const App = () => {
   const [userLoggedIn, setUserLoggedIn] = useState(false); 
