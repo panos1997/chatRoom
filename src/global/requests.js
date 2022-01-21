@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const ServerURL = 'https://my-chat-room-application.herokuapp.com/';
+export const ServerURL = 'https://my-chat-room-application.herokuapp.com';
 // export const ServerURL = 'http://localhost:3001';
 
 const requests = {
