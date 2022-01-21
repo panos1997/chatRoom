@@ -14,14 +14,14 @@ const MenuWithOptions = ({options}) => {
     }
 
     return(
-        <div>
+        <div className='menuWithOptions'>
             <MoreVertIcon 
                 className='optionsIcon' 
                 onClick={handleClick}
             />
             <Menu
                 id="simple-menu"
-                className='chatOptionsMenu'
+                className='generalPopupOptionsMenu'
                 anchorEl={menuElement}
                 keepMounted
                 open={Boolean(menuElement)}

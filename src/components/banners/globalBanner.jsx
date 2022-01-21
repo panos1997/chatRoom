@@ -1,17 +1,17 @@
 import React from "react";
 import ButtonComponent from '../buttons/buttonComponent';
 
-const GlobalBanner = ({bannerShow, bannerTexts, bannerButtons}) => {
+const GlobalBanner = ({bannerShow, bannerTexts, bannerButtons, bannerExtraClasses}) => {
     return(
         bannerShow && <div className='globalBannerWrapper'>
-            <div className='globalBanner flex-center-col'>
-                <h3 className='globalBanner-title'>
+            <div className={`globalBanner flex-center-col ${bannerExtraClasses.globalBanner}`}>
+                <h3 className='title'>
                     {bannerTexts.title}
                 </h3>
-                <p className='globalBanner-description'>
+                <div className={`description ${bannerExtraClasses.description}`}>
                     {bannerTexts.description}
-                </p>
-                <div className='flex-center-justify-around-row full-width'>
+                </div>
+                {bannerButtons?.length > 0 && <div className='flex-center-justify-around-row full-width'>
                     {
                         bannerButtons.map((button, index) => (
                             <ButtonComponent 
@@ -25,7 +25,7 @@ const GlobalBanner = ({bannerShow, bannerTexts, bannerButtons}) => {
                             />
                         ))
                     }
-                </div>
+                </div>}
             </div>
         </div>
     )

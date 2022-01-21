@@ -1,14 +1,26 @@
 import moment from 'moment';
+import Avatar from '@material-ui/core/Avatar';
+import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+import cssVars from '../css/exportedVars.module.scss';
+import requests from '../global/requests.js';
+import MenuWithOptions from '../components/menus/menuWithOptions';
 
 export const GlobalUtilities = {
     globalBannerUtilities: {
-        showGlobalBanner: (dispatch, bannerTexts, bannerButtons) => {
+        showGlobalBanner: (dispatch, bannerTexts, bannerButtons, bannerExtraClasses) => {
             dispatch({ type: 'globalBanner/setBannerShow', payload: true });
-            dispatch({ type: 'globalBanner/setBannerTexts', payload: bannerTexts });
-            dispatch({ type: 'globalBanner/setBannerButtons', payload: bannerButtons });
+            bannerTexts && dispatch({ type: 'globalBanner/setBannerTexts', payload: bannerTexts });
+            bannerButtons && dispatch({ type: 'globalBanner/setBannerButtons', payload: bannerButtons });
+            bannerExtraClasses && dispatch({ type: 'globalBanner/setBannerExtraClasses', payload: bannerExtraClasses });
+        },
+        closeGlobalBanner: (dispatch) => {
+            dispatch({ type: 'globalBanner/setBannerShow', payload: false });
+            dispatch({ type: 'globalBanner/setBannerTexts', payload: {} });
+            dispatch({ type: 'globalBanner/setBannerButtons', payload: [] });
+            dispatch({ type: 'globalBanner/setBannerExtraClasses', payload: {} });
         },
         closeBannerOnEscapeKey: (e, bannerIsOpen, dispatch) => {
-            if(bannerIsOpen && (e.key === 'Escape')) dispatch({ type: 'globalBanner/setBannerShow', payload: false });
+            if(bannerIsOpen && (e.key === 'Escape')) GlobalUtilities.globalBannerUtilities.closeGlobalBanner(dispatch); 
         },
         showClearChatBanner: (dispatch, socket, chatRoom) => {
             const bannerTextsTemp = {
@@ -20,7 +32,7 @@ export const GlobalUtilities = {
                     content: 'Cancel',
                     classes: 'globalButton normalButton margin-b-5',
                     style: {width: '100px'},
-                    clickListener: () => dispatch({type: 'globalBanner/setBannerShow', payload: false}) 
+                    clickListener: () => GlobalUtilities.globalBannerUtilities.closeGlobalBanner(dispatch) 
                   },
                   {
                     content: 'Proceed',
@@ -28,8 +40,12 @@ export const GlobalUtilities = {
                     style: {width: '100px'},
                     clickListener: () => GlobalUtilities.chatUtilities.clearChat(dispatch, socket, chatRoom)
                   }
-            ]
-            GlobalUtilities.globalBannerUtilities.showGlobalBanner(dispatch, bannerTextsTemp, bannerButtonsTemp);
+            ];
+            const bannerExtraClassesTemp = {
+                globalBanner: 'clearChatBanner'
+            };
+
+            GlobalUtilities.globalBannerUtilities.showGlobalBanner(dispatch, bannerTextsTemp, bannerButtonsTemp, bannerExtraClassesTemp);
         }
     },
     chatUtilities: {
@@ -39,7 +55,8 @@ export const GlobalUtilities = {
                     room: chatRoom,
                     author: chatUser,
                     message: message,
-                    time: moment().format('DD/MM/YYYY hh:mm')
+                    fullTime: moment().format('DD/MM/YYYY hh:mm'),
+                    shortTime: moment().format('hh:mm')
                 }; 
                 
                 await socket.emit('send_message', messageToSend);
@@ -54,11 +71,11 @@ export const GlobalUtilities = {
             }  
         },
         clearChat: (dispatch, socket, chatRoom) => {
-            dispatch({type: 'globalBanner/setBannerShow', payload: false})
+            GlobalUtilities.globalBannerUtilities.closeGlobalBanner(dispatch);
             socket.emit('clear_all_messages', chatRoom);
         },
         // logout from chat redirects user to the login page
-        logoutFromChat: (dispatch, socket, chatUser, chatRoom, setUserLoggedIn) => {
+        logoutFromChat: async (dispatch, socket, chatUser, chatRoom, setUserLoggedIn) => {
             setUserLoggedIn(false);
 
             // notify server that user has logged out of the chat
@@ -80,6 +97,43 @@ export const GlobalUtilities = {
                     action && action();
                 })
             }
-        }    
+        },
+        showParticipantsBanner: async (dispatch, chatRoomName) => {
+            const users = await requests.getUsersInChat(chatRoomName);
+            
+            const participantsList = <div>
+                {users.map((participant, index) => (
+                    <div key={index} className='flex-center-justify-between-row margin-t-15 margin-b-15'>
+                        <div className='flex-center-row'>
+                            <Avatar style={{backgroundColor: participant.avatarColor}}>
+                                {participant.name.charAt(0).toUpperCase()}
+                            </Avatar> 
+                            <p className='margin-l-10'>
+                                {participant.name}
+                            </p>
+                        </div>
+                        <MenuWithOptions
+                            options={[
+                                {
+                                    icon: <RemoveCircleIcon style={{color: cssVars['button2Color']}} />, 
+                                    text: 'Remove Participant', 
+                                    clickHandler: () => {}
+                                }
+                            ]}
+                        />
+                    </div>)
+                )}
+            </div>;
+    
+            const bannerTextsTemp = {
+                title: 'Participants',
+                description: participantsList
+            }
+            const bannerExtraClasses = {
+                globalBanner: 'participantsBanner',
+                description: 'participantsBanner-list'
+            }
+            GlobalUtilities.globalBannerUtilities.showGlobalBanner(dispatch, bannerTextsTemp, null, bannerExtraClasses);
+        }
     }
 }

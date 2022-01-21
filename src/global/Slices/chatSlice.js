@@ -1,6 +1,7 @@
 const initialChatState = {
     chatRoom: {name: ''},
     chatUser: {name: ''},
+    chatAllUsers: [],
     socket: null
 }
 
@@ -23,6 +24,12 @@ const Chat = (state = initialChatState, action) => {
             return {
                 ...state,
                 socket: action.payload
+            };
+        }
+        case 'chat/setChatAllUsers': {
+            return {
+                ...state,
+                chatAllUsers: action.payload
             };
         }
         default: 

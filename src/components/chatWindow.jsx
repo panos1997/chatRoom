@@ -5,10 +5,13 @@ import ButtonComponent from './buttons/buttonComponent';
 import { GlobalUtilities } from '../Utilities/globalUtilities';
 import Tooltip from '@material-ui/core/Tooltip';
 import PeopleIcon from '@material-ui/icons/People';
+import SettingsIcon from '@material-ui/icons/Settings';
 import DeleteIcon from '@material-ui/icons/Delete';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import MenuWithOptions from './menus/menuWithOptions';
 import {useDispatch, useSelector} from 'react-redux';
+import { Avatar } from '@material-ui/core';
+import { CirclePicker } from 'react-color';
 
 const ChatWindow = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
     const [messages, setMessages] = useState([]);
@@ -17,6 +20,7 @@ const ChatWindow = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
     // store vars
     const dispatch = useDispatch();
     const globalBannerStore = useSelector(state => state.globalBanner);
+    const chatStore = useSelector(state => state.chat);
 
     useEffect(() => {
         socket.on('receive_message', (data) => {
@@ -25,6 +29,9 @@ const ChatWindow = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
         });
         socket.on('receive_all_messages', allMessages => {
             setMessages(allMessages);
+        });
+        socket.on('someone_joined_or_left', allUsers => {
+            dispatch({type: 'chat/setChatAllUsers', payload: allUsers});
         });
     }, [socket]);
 
@@ -75,16 +82,32 @@ const ChatWindow = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
                             active={true} 
                             className='margin-b-1'
                         />
-                        <p className='margin-l-10'> 
-                            Live Chat Room
-                        </p>
+                        <div className='margin-l-10'>
+                            {chatRoom.name}
+                            <span className='chatWindow-header-participantsInfo margin-l-5'>
+                                (
+                                    <span 
+                                        className='participants' 
+                                        onClick={() => GlobalUtilities.chatUtilities.showParticipantsBanner(dispatch, chatRoom.name)}>
+                                            {chatStore.chatAllUsers?.length === 0 || chatStore.chatAllUsers?.length === 1 
+                                                ? `1 person` 
+                                                : `${chatStore.chatAllUsers?.length} people`
+                                            } 
+                                    </span> in the room)
+                            </span>
+                        </div>
                     </div>
                     <MenuWithOptions
                         options={[
                             {
                                 icon: <PeopleIcon/>, 
                                 text: 'Participants', 
-                                clickHandler: () => {}
+                                clickHandler: () => GlobalUtilities.chatUtilities.showParticipantsBanner(dispatch, chatRoom.name)
+                            },
+                            {
+                                icon: <SettingsIcon/>, 
+                                text: 'Settings', 
+                                clickHandler: () => GlobalUtilities.chatUtilities.showParticipantsBanner(dispatch, chatRoom.name)
                             }
                         ]}
                     />
@@ -93,13 +116,37 @@ const ChatWindow = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
                     {
                         messages.map((messageItem, index) => {
                             return (
-                                <div key={index} className={`chatWindow-body-message ${messageItem.author.name === chatUser.name ? 'myMessage' : 'foreignMessage'}`}>
-                                    <div className='messageContent'> 
-                                        {messageItem.message}
+                                <div key={index} className={`chatWindow-body-message flex-col margin-t-5 ${messageItem.author.name === chatUser.name ? 'myMessage' : 'foreignMessage'}`}>
+                                    <div className='flex-row margin-r-15 margin-l-15'>
+                                        {
+                                            messageItem.author.name === chatUser.name 
+                                            && <Tooltip title={messageItem.author.name} placement='left'>
+                                                    <Avatar className='margin-r-15' style={{backgroundColor: messageItem.author.avatarColor}}>
+                                                        {messageItem.author.name.charAt(0).toUpperCase()}
+                                                    </Avatar>
+                                                </Tooltip>
+                                        }
+                                        <div>
+                                            <div className='messageContent'> 
+                                                <Tooltip title={messageItem.fullTime} placement='left'>
+                                                    <div>
+                                                        {messageItem.message}
+                                                    </div>
+                                                </Tooltip>
+                                            </div>
+                                            <div className={`messageDate margin-t-2 margin-b-5`}>
+                                                {messageItem.shortTime}
+                                            </div>
+                                        </div>
+                                        {
+                                            messageItem.author.name !== chatUser.name 
+                                            && <Tooltip title={messageItem.author.name} placement='right'>
+                                                    <Avatar className='margin-l-15' style={{backgroundColor: messageItem.author.avatarColor}}>
+                                                        {messageItem.author.name.charAt(0).toUpperCase()}
+                                                    </Avatar>
+                                                </Tooltip>
+                                        }
                                     </div>
-                                    <p className='messageDate margin-t-2 margin-b-5 margin-r-13'>
-                                        {messageItem.time}
-                                    </p>
                                 </div>
                             )
                         })

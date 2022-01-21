@@ -1,7 +1,8 @@
 const initialGlobalBannerState = {
     bannerShow: false,
     bannerTexts: {},
-    bannerButtons: []
+    bannerButtons: [],
+    bannerExtraClasses: {}
 }
 
 // Global Banner reducer
@@ -23,6 +24,12 @@ const globalBanner = (state = initialGlobalBannerState, action) => {
             return {
                 ...state,
                 bannerButtons: action.payload
+            };
+        }
+        case 'globalBanner/setBannerExtraClasses': {
+            return {
+                ...state,
+                bannerExtraClasses: action.payload
             };
         }
         default: 

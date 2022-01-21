@@ -5,11 +5,9 @@ import Login from './components/login';
 import io from 'socket.io-client';
 import GlobalBanner from './components/banners/globalBanner.jsx';
 import {useSelector} from 'react-redux';
+import {ServerURL} from './global/requests.js';
 
-const serverUrl = 'https://my-chat-room-application.herokuapp.com/';
-// const serverUrl = 'http://localhost:3001';
-
-const socket = io.connect(serverUrl);
+const socket = io.connect(ServerURL);
 
 const App = () => {
   const [userLoggedIn, setUserLoggedIn] = useState(false); 
@@ -40,6 +38,7 @@ const App = () => {
         bannerShow={globalBannerStore.bannerShow}
         bannerTexts={globalBannerStore.bannerTexts}
         bannerButtons={globalBannerStore.bannerButtons}
+        bannerExtraClasses={globalBannerStore.bannerExtraClasses}
       />
     </div>
   );
