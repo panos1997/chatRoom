@@ -4,6 +4,8 @@ import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
 import cssVars from '../css/exportedVars.module.scss';
 import requests from '../global/requests.js';
 import MenuWithOptions from '../components/menus/menuWithOptions';
+import {pick} from 'lodash';
+import CloseIcon from '@material-ui/icons/Close';
 
 export const GlobalUtilities = {
     globalBannerUtilities: {
@@ -59,7 +61,13 @@ export const GlobalUtilities = {
                     shortTime: moment().format('hh:mm')
                 }; 
                 
-                await socket.emit('send_message', messageToSend);
+                await socket.emit(
+                    'send_message', 
+                    {
+                        message: pick(messageToSend, ['message', 'author', 'fullTime', 'shortTime']), 
+                        room: chatRoom
+                    }
+                );
     
                 setMessages((prevMessages) => [...prevMessages, messageToSend]);
     
@@ -126,7 +134,13 @@ export const GlobalUtilities = {
             </div>;
     
             const bannerTextsTemp = {
-                title: 'Participants',
+                title: <div className='flex-center-justify-center-row title'>
+                    <div>Participants</div>
+                    <CloseIcon 
+                        className='closeIcon'
+                        onClick={() => GlobalUtilities.globalBannerUtilities.closeGlobalBanner(dispatch)}
+                    />
+                </div>,
                 description: participantsList
             }
             const bannerExtraClasses = {

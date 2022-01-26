@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import './css/index.scss';
-import ChatWindow from './components/chatWindow';
+import ChatWindow from './components/chat/chatWindow';
 import Login from './components/login';
 import io from 'socket.io-client';
 import GlobalBanner from './components/banners/globalBanner.jsx';

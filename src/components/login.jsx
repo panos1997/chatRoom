@@ -4,16 +4,27 @@ import { GlobalUtilities } from '../Utilities/globalUtilities';
 import ButtonComponent from './buttons/buttonComponent';
 import { useDispatch } from 'react-redux';
 import requests from '../global/requests.js';
+import {keys} from 'lodash';
 
 const MAX_FIELD_CHARS = 30;
 let chatRoomLocal = {name: ''};
 
+const loginErrorMessages = {
+    roomIsFullError: 'This room is full. Please select another one.',
+    emptyUserFieldError: 'please type a username.',
+    emptyRoomFieldError: 'please type a room.',
+    maxCharsRoomFieldError: `room name can not be more than ${MAX_FIELD_CHARS} letters`,
+    maxCharsUserFieldError: `username can not be more than ${MAX_FIELD_CHARS} letters`,
+}
+
 const Login = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
-    const [roomIsFullError, setRoomIsFullError] = useState(false);
-    const [emptyUserFieldError, setEmptyUserFieldError] = useState(false);
-    const [emptyRoomFieldError, setEmptyRoomFieldError] = useState(false);
-    const [maxCharsRoomFieldError, setMaxCharsRoomFieldError] = useState(false);
-    const [maxCharsUserFieldError, setMaxCharsUserFieldError] = useState(false);
+    const [loginError, setLoginError] = useState({
+        roomIsFullError: false,
+        emptyUserFieldError: false,
+        emptyRoomFieldError: false,
+        maxCharsRoomFieldError: false,
+        maxCharsUserFieldError: false,
+    });
 
     // store vars
     const dispatch = useDispatch();
@@ -26,30 +37,40 @@ const Login = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
                 dispatch({type: 'chat/setChatAllUsers', payload: users});
                 dispatch({type: 'chat/setChatUser', payload: data.user});
                 dispatch({type: 'chat/setChatRoom', payload: data.room});
-            } else setRoomIsFullError(true);
+            } else {
+                setLoginError((prevError) => { return {...prevError, roomIsFullError: true};});
+            }
         });
     // eslint-disable-next-line
     }, [socket]);
 
-    const errorsExist = () => {
-        return roomIsFullError || emptyUserFieldError || emptyRoomFieldError || maxCharsRoomFieldError || maxCharsUserFieldError;
+    const errorsExist = () => !!(keys(loginError).find(error => loginError[error] === true));
+
+    const getUserFieldErrorText = () => {
+        return loginError.emptyUserFieldError 
+            ? loginErrorMessages.emptyUserFieldError
+            : loginError.maxCharsUserFieldError 
+            ? loginErrorMessages.maxCharsUserFieldError
+            : '\u00a0';
+    }
+
+    const getRoomFieldErrorText = () => {
+        return loginError.emptyRoomFieldError 
+            ? loginErrorMessages.emptyRoomFieldError
+            : loginError.maxCharsRoomFieldError 
+            ? loginErrorMessages.maxCharsRoomFieldError
+            : loginError.roomIsFullError 
+            ? loginErrorMessages.roomIsFullError
+            : '\u00a0';
     }
 
     const joinRoom = (user, room) => {
         if(!errorsExist() && (user.name !== '' && room.name !== '')) {
             socket.emit('join_room', {user: user, room: room});
         } else {
-            if(user.name === '') setEmptyUserFieldError(true);
-            if(room.name === '') setEmptyRoomFieldError(true);
+            if(user.name === '') setLoginError((prevError) => { return {...prevError, emptyUserFieldError: true}});
+            if(room.name === '') setLoginError((prevError) => { return {...prevError, emptyRoomFieldError: true}});
         }
-    }
-
-    const getUserFieldErrorText = () => {
-        return emptyUserFieldError ? 'please type a username.' : maxCharsUserFieldError ? `username can not be more than ${MAX_FIELD_CHARS} letters` : '\u00a0';
-    }
-
-    const getRoomFieldErrorText = () => {
-        return emptyRoomFieldError ? 'please type a room.' : maxCharsRoomFieldError ? `room name can not be more than ${MAX_FIELD_CHARS} letters` : roomIsFullError ? 'This room is full. Please select another one.' : '\u00a0';
     }
 
     return <div className='loginWindow flex-center-justify-center-col'>
@@ -61,14 +82,14 @@ const Login = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
             className='loginWindow-field'
             value={chatUser.name} 
             onChange={(e) => {
-                if(e.target.value !== '') setEmptyUserFieldError(false);
-                if(e.target.value.length > MAX_FIELD_CHARS) setMaxCharsUserFieldError(true);
-                else if(maxCharsUserFieldError) setMaxCharsUserFieldError(false);
+                if(e.target.value !== '') setLoginError((prevError) => { return {...prevError, emptyUserFieldError: false}});
+                if(e.target.value.length > MAX_FIELD_CHARS) setLoginError((prevError) => { return {...prevError, maxCharsUserFieldError: true}});
+                else if(loginError.maxCharsUserFieldError) setLoginError((prevError) => { return {...prevError, maxCharsUserFieldError: false}});
 
                 dispatch({type: 'chat/setChatUser', payload: {name: e.target.value}});
             }}
             onKeyPress={(e) => GlobalUtilities.chatUtilities.pressEnterOnKeyboard(e, [() => joinRoom({name: e.target.value, avatarColor: 'green'}, chatRoom)])}
-            error={emptyUserFieldError || maxCharsUserFieldError}
+            error={loginError.emptyUserFieldError || loginError.maxCharsUserFieldError}
             helperText={getUserFieldErrorText()}
         />
         <TextField 
@@ -76,15 +97,15 @@ const Login = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
             className='loginWindow-field'
             value={chatRoom.name} 
             onChange={(e) => {
-                if(e.target.value !== '') setEmptyRoomFieldError(false);
-                if(e.target.value.length > MAX_FIELD_CHARS) setMaxCharsRoomFieldError(true);
-                else if(maxCharsRoomFieldError) setMaxCharsRoomFieldError(false);
+                if(e.target.value !== '') setLoginError((prevError) => { return {...prevError, emptyRoomFieldError: false}});
+                if(e.target.value.length > MAX_FIELD_CHARS) setLoginError((prevError) => { return {...prevError, maxCharsRoomFieldError: true}});
+                else if(loginError.maxCharsRoomFieldError) setLoginError((prevError) => { return {...prevError, maxCharsRoomFieldError: false}});
 
                 dispatch({type: 'chat/setChatRoom', payload: {name: e.target.value}});
                 chatRoomLocal = {name: e.target.value};
             }}
             onKeyPress={(e) => GlobalUtilities.chatUtilities.pressEnterOnKeyboard(e, [() => joinRoom(chatUser, {name: e.target.value})])}
-            error={emptyRoomFieldError || maxCharsRoomFieldError || roomIsFullError}
+            error={loginError.emptyRoomFieldError || loginError.maxCharsRoomFieldError || loginError.roomIsFullError}
             helperText={getRoomFieldErrorText()}
         />
         <ButtonComponent 

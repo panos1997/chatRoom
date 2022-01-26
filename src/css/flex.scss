@@ -20,6 +20,13 @@
     align-items: center;
 }
 
+.flex-center-justify-center-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
 .flex-center-justify-center-col {
     display: flex;
     flex-direction: column;

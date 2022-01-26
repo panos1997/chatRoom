@@ -5,9 +5,9 @@ const GlobalBanner = ({bannerShow, bannerTexts, bannerButtons, bannerExtraClasse
     return(
         bannerShow && <div className='globalBannerWrapper'>
             <div className={`globalBanner flex-center-col ${bannerExtraClasses.globalBanner}`}>
-                <h3 className='title'>
+                <div className='header full-width'>
                     {bannerTexts.title}
-                </h3>
+                </div>
                 <div className={`description ${bannerExtraClasses.description}`}>
                     {bannerTexts.description}
                 </div>
