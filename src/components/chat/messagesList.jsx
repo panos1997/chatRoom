@@ -10,6 +10,36 @@ const MessagesList = ({socket, messages, chatUser, chatRoom}) => {
         socket.emit('delete_message', {room: chatRoom, messageIndex: index});
     }
 
+    const getMessageWithGifIfExists = (message) => {
+        const initialMessageWithoutGifs = message.split(' ').filter(messagePart => !messagePart.includes('gif(')).join(' ');
+        let gifUrlsArray = [];
+
+        if(message.includes('gif(')) {
+            const regex = new RegExp('gif(.*)');
+            gifUrlsArray = regex.exec(message)[0].replace(/gif\(/g, '').replace(/\)/g, '').split(' ').filter(item => item.includes('https://'));
+
+            console.log(gifUrlsArray);
+        }
+         
+        return <div className='flex-col margin-l-13'>
+            {
+                gifUrlsArray.length > 0 && gifUrlsArray.map((gifUrl, index) => (
+                    <img
+                        key={index}
+                        className='margin-b-5'
+                        width={150}
+                        height={100}
+                        src={gifUrl}
+                        alt="gif image"
+                    />
+                ))
+            }
+            <div>
+                {initialMessageWithoutGifs}
+            </div>
+        </div>
+    }
+
     return(
         <div className='chatWindow-body flex-center-col margin-t-10'>
             {
@@ -34,7 +64,7 @@ const MessagesList = ({socket, messages, chatUser, chatRoom}) => {
                                     <div className='messageContent'> 
                                         <Tooltip title={messageItem.fullTime} placement='left'>
                                             <div>
-                                                {messageItem.message}
+                                                {getMessageWithGifIfExists(messageItem.message)}
                                             </div>
                                         </Tooltip>
                                     </div>

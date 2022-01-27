@@ -5,7 +5,7 @@ import PeopleIcon from '@material-ui/icons/People';
 import SettingsIcon from '@material-ui/icons/Settings';
 import MenuWithOptions from '../menus/menuWithOptions';
 import {useDispatch, useSelector} from 'react-redux';
-import { CirclePicker } from 'react-color';
+// import { CirclePicker } from 'react-color';
 import MessagesList from './messagesList';
 import TypeAndSendMessage from './typeAndSendMessage';
 import ChatOptions from './chatOptions'; 
