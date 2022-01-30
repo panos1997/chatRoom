@@ -2,13 +2,17 @@ import React, { useEffect, useState } from 'react';
 import OnlineStateIcon from '../customIcons/onlineStateIcon';
 import { GlobalUtilities } from '../../Utilities/globalUtilities';
 import PeopleIcon from '@material-ui/icons/People';
-import SettingsIcon from '@material-ui/icons/Settings';
 import MenuWithOptions from '../menus/menuWithOptions';
 import {useDispatch, useSelector} from 'react-redux';
-// import { CirclePicker } from 'react-color';
 import MessagesList from './messagesList';
 import TypeAndSendMessage from './typeAndSendMessage';
-import ChatOptions from './chatOptions'; 
+import Tooltip from '@material-ui/core/Tooltip';
+import ButtonComponent from '../buttons/buttonComponent';
+import DeleteIcon from '@material-ui/icons/Delete';
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+// import SettingsIcon from '@material-ui/icons/Settings';
+// import { CirclePicker } from 'react-color';
+// import ChatOptions from './chatOptions'; 
 
 let mounted = false;
 
@@ -49,12 +53,12 @@ const ChatWindow = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
 
     return( 
         <div className='chatWindowWrapper'>
-            <ChatOptions
+            {/* <ChatOptions
                 socket={socket}
                 chatUser={chatUser}
                 chatRoom={chatRoom}
                 setUserLoggedIn={setUserLoggedIn}
-            />
+            /> */}
             <div className='chatWindow flex-col'>
                 <div className='chatWindow-header flex-center-justify-between-row'>
                     <div className='flex-center-row'>
@@ -77,20 +81,52 @@ const ChatWindow = ({setUserLoggedIn, chatUser, chatRoom, socket}) => {
                             </span>
                         </div>
                     </div>
-                    <MenuWithOptions
-                        options={[
-                            {
-                                icon: <PeopleIcon/>, 
-                                text: 'Participants', 
-                                clickHandler: () => GlobalUtilities.chatUtilities.showParticipantsBanner(dispatch, chatRoom.name)
-                            },
-                            {
-                                icon: <SettingsIcon/>, 
-                                text: 'Settings', 
-                                clickHandler: () => {}
-                            }
-                        ]}
-                    />
+                    <div className='flex-center-row'>
+                        <Tooltip title='Exit chat' placement='top-start'>
+                            <div className='margin-l-5'>
+                                <ButtonComponent 
+                                    btnContent={
+                                        <div className='flex-center-row'>
+                                            <ExitToAppIcon/>
+                                        </div>
+                                    }
+                                    btnProps={{
+                                        className: 'globalButton normalButton margin-b-5 margin-r-5',
+                                        onClick: () => GlobalUtilities.chatUtilities.logoutFromChat(dispatch, socket, chatUser, chatRoom, setUserLoggedIn)
+                                    }}
+                                />
+                            </div>
+                        </Tooltip>
+                        <Tooltip title='Delete all messages. The messages will be deleted for everyone in the chat.' placement='top-start' width={50}>
+                            <div className='margin-l-5'>
+                                <ButtonComponent 
+                                    btnContent={
+                                        <div className='flex-center-row'>
+                                            <DeleteIcon/>
+                                        </div>
+                                    }
+                                    btnProps={{
+                                        className: 'globalButton deleteButton margin-b-5',
+                                        onClick: () => GlobalUtilities.globalBannerUtilities.showClearChatBanner(dispatch, socket, chatRoom)
+                                    }}
+                                />
+                            </div>
+                        </Tooltip>
+                        <MenuWithOptions
+                            options={[
+                                {
+                                    icon: <PeopleIcon/>, 
+                                    text: 'Participants', 
+                                    clickHandler: () => GlobalUtilities.chatUtilities.showParticipantsBanner(dispatch, chatRoom.name)
+                                },
+                                // {
+                                //     icon: <SettingsIcon/>, 
+                                //     text: 'Settings', 
+                                //     clickHandler: () => {}
+                                // }
+                            ]}
+                        />
+                    </div>
                 </div>
                 
                 <MessagesList

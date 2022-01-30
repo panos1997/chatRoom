@@ -21,7 +21,7 @@ const MessagesList = ({socket, messages, chatUser, chatRoom}) => {
             console.log(gifUrlsArray);
         }
          
-        return <div className='flex-col margin-l-13'>
+        return <div className='flex-col'>
             {
                 gifUrlsArray.length > 0 && gifUrlsArray.map((gifUrl, index) => (
                     <img
@@ -30,7 +30,7 @@ const MessagesList = ({socket, messages, chatUser, chatRoom}) => {
                         width={150}
                         height={100}
                         src={gifUrl}
-                        alt="gif image"
+                        alt="gif"
                     />
                 ))
             }

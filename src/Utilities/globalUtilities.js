@@ -1,11 +1,11 @@
 import moment from 'moment';
 import Avatar from '@material-ui/core/Avatar';
-import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
-import cssVars from '../css/exportedVars.module.scss';
 import requests from '../global/requests.js';
-import MenuWithOptions from '../components/menus/menuWithOptions';
 import {pick} from 'lodash';
 import CloseIcon from '@material-ui/icons/Close';
+// import RemoveCircleIcon from '@material-ui/icons/RemoveCircle';
+// import cssVars from '../css/exportedVars.module.scss';
+// import MenuWithOptions from '../components/menus/menuWithOptions';
 
 export const GlobalUtilities = {
     globalBannerUtilities: {
@@ -120,7 +120,7 @@ export const GlobalUtilities = {
                                 {participant.name}
                             </p>
                         </div>
-                        <MenuWithOptions
+                        {/* <MenuWithOptions
                             options={[
                                 {
                                     icon: <RemoveCircleIcon style={{color: cssVars['button2Color']}} />, 
@@ -128,7 +128,7 @@ export const GlobalUtilities = {
                                     clickHandler: () => {}
                                 }
                             ]}
-                        />
+                        /> */}
                     </div>)
                 )}
             </div>;
@@ -148,6 +148,26 @@ export const GlobalUtilities = {
                 description: 'participantsBanner-list'
             }
             GlobalUtilities.globalBannerUtilities.showGlobalBanner(dispatch, bannerTextsTemp, null, bannerExtraClasses);
+        },
+        searchForGifs: async (e, setGifs, setShowGifsMenu, setGifsLoading) => {
+            const gifsName = e.target.value;
+            if(gifsName.length > 0) GlobalUtilities.chatUtilities.showGifsbyGivenName(gifsName, setGifs, setGifsLoading);
+            else GlobalUtilities.chatUtilities.showTrendyGifs(setGifs, setShowGifsMenu, setGifsLoading);
+        },
+        showGifsbyGivenName: async (gifsName, setGifs, setGifsLoading) => {
+            setGifsLoading(true);
+            const gifsArray = await requests.getGifs(gifsName);
+            setGifs(gifsArray);
+            setGifsLoading(false);
+        },
+        showTrendyGifs: (setGifs, setShowGifsMenu, setGifsLoading) => {
+            setShowGifsMenu(async (prevState) => {
+                setGifsLoading(true);
+                const trendyGifs = await requests.getGifs();
+                setGifs(trendyGifs);
+                setGifsLoading(false);
+                return !prevState;
+            });
         }
     }
 }

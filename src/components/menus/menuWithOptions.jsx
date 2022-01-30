@@ -14,7 +14,7 @@ const MenuWithOptions = ({options}) => {
     }
 
     return(
-        <div className='menuWithOptions'>
+        <div className='menuWithOptions margin-l-5'>
             <MoreVertIcon 
                 className='optionsIcon' 
                 onClick={handleClick}

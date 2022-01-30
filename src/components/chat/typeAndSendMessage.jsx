@@ -6,7 +6,7 @@ import Picker, {SKIN_TONE_MEDIUM_DARK} from 'emoji-picker-react';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import GifIcon from '@material-ui/icons/Gif';
 import { TextField } from '@material-ui/core';
-import requests from '../../global/requests.js';
+import CircularProgress from '@material-ui/core/CircularProgress';
 // import dummyGifs from './dummyGifs.js';
 
 const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurrentMessage, setMessages}) => {
@@ -14,6 +14,7 @@ const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurr
     const [showGifsMenu, setShowGifsMenu] = useState(false);
     const [gifs, setGifs] = useState([]);
     const [gifsUploadedToTextArea, setGifsUploadedToTextArea] = useState([]);
+    const [gifsLoading, setGifsLoading] = useState(true);
 
     const sendMessage = () => {
         let messageWithGifIfExists = '';
@@ -33,7 +34,7 @@ const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurr
     }
 
     const getUploadedGifs = () => {
-        const uploadedGifsList = <div className='flex-center-col margin-l-13'>
+        const uploadedGifsList = <div className='flex-center-col margin-l-15'>
             {
                 gifsUploadedToTextArea.map((gifUrl, index) => (
                     <img
@@ -42,7 +43,7 @@ const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurr
                         width={150}
                         height={100}
                         src={gifUrl}
-                        alt="gif image"
+                        alt="gif"
                     />
                 ))
             }
@@ -54,30 +55,13 @@ const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurr
         setCurrentMessage((previousMessage) => {
             const messageWithEmoji = previousMessage.concat('', emojiObject.emoji);
             setCurrentMessage(messageWithEmoji);
+            
+            GlobalUtilities.chatUtilities.scrollDownToLatestMessage('MuiInputBase-root');
         });
     }
 
     const onGifClick = (gifUrl) => {
         setGifsUploadedToTextArea((prevState) => [...prevState, gifUrl]);
-    }
-
-    const searchForGifs = async (e) => {
-        const gifsName = e.target.value;
-        if(gifsName.length > 0) showGifsbyGivenName(gifsName);
-        else showTrendyGifs();
-    }
-
-    const showGifsbyGivenName = async (gifsName) => {
-        const gifsArray = await requests.getGifs(gifsName);
-        setGifs(gifsArray);
-    };
-
-    const showTrendyGifs = () => {
-        setShowGifsMenu(async (prevState) => {
-            const trendyGifs = await requests.getGifs();
-            setGifs(trendyGifs);
-            return !prevState;
-        });
     }
 
     return(
@@ -102,7 +86,7 @@ const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurr
                 />
                 <GifIcon
                     className='importInChat gifs margin-b-2'
-                    onClick={() => !showGifsMenu && showTrendyGifs()}
+                    onClick={() => !showGifsMenu && GlobalUtilities.chatUtilities.showTrendyGifs(setGifs, setShowGifsMenu, setGifsLoading)}
                 />
             </div>
             <ButtonComponent 
@@ -132,17 +116,19 @@ const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurr
             }
             {
                 showGifsMenu && <ClickAwayListener onClickAway={() => setShowGifsMenu(false)}>
-                    <div className='emojisOrGifsMenu gifsMenu'>
+                    <div className='emojisOrGifsMenu gifsMenu flex-center-col'>
                         <TextField 
                             id="outlined-basic" 
                             label="Search gifs" 
                             variant="outlined" 
                             className='searchBar'
-                            onChange={searchForGifs}
+                            onChange={(e) => GlobalUtilities.chatUtilities.searchForGifs(e, setGifs, setShowGifsMenu, setGifsLoading)}
                         />
                         <div className='gifsList'>
                             {
-                                gifs.map((gif, index) => (
+                                gifsLoading
+                                ? <CircularProgress className='margin-t-70'/>
+                                : gifs.map((gif, index) => (
                                     <img 
                                         className='gifItem'
                                         width={150}
@@ -154,6 +140,7 @@ const TypeAndSendMessage = ({socket, chatUser, chatRoom, currentMessage, setCurr
                                     />
                                 ))
                             }
+
                         </div>
                     </div>
                 </ClickAwayListener>
