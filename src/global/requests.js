@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const ServerURL = 'https://https://chatroom-server-lsas.onrender.com';
+export const ServerURL = 'https://chatroom-server-lsas.onrender.com';
 // export const ServerURL = 'http://localhost:3001';
 
 const requests = {
