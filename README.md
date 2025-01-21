@@ -1,5 +1,4 @@
 # chatRoom  
-https://my-chatroom-app-client.herokuapp.com/  
 
 A simple chatroom app using **React** and **socket.io**. Also the css is written in **sass** (node-sass npm package) and the global store with **redux** (react-redux npm package).  
 
